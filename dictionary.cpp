@@ -27,17 +27,11 @@ Dictionary::Dictionary(string fname, int tsize) {
     }
 
     tempTable = new int[tsize];
-    table = new string[tsize];
+    table.resize(tsize);
 }
 
 Dictionary::~Dictionary() {
     delete[] tempTable;
-    delete[] table;
-}
-
-bool Dictionary::find(string word)
-{
-    return false;
 }
 
 void Dictionary::writeToFile(string fName){
@@ -76,9 +70,7 @@ Dictionary Dictionary::readFromFile(string fName){
 //     }
 // }
 
-string* Dictionary::getTable() {
-    return table;
-}
+
 
 int* Dictionary::getTempTable() {
     return tempTable;
@@ -87,9 +79,11 @@ int* Dictionary::getTempTable() {
 void Dictionary::infoDump() {
     primaryHash.dump();
     cout << "Number of words = " << numWords << endl;
-    // TO DO below table size
     cout << "Table size = " << tableSize << endl;
     this->checkPrimaryCollisions();
+    this->createSecondaryHashTable();
+    this->insertWords();
+    this->checkSecondaryCollisions();
 }
 
 void Dictionary::checkPrimaryCollisions(){
@@ -138,8 +132,111 @@ void Dictionary::checkPrimaryCollisions(){
             cout << wordList[b] << endl;
         }
     }
-
 }
+
+void Dictionary::createSecondaryHashTable() {
+    for(int i = 0; i < table.size(); i++){
+        table[i] = Node(tempTable[i]);
+    }
+}
+
+void Dictionary::insertWords(){
+    for(int i = 0; i < table.size(); i++){
+        // cout << "inside for loop, Index: " << i << endl;
+        // cout << "table size: " << table.size() << endl;
+        string word = wordList[i];
+        int targetIndex = primaryHash.hash(word) % numWords;
+        int table2Target = table[targetIndex].getH2().hash(word) % (table[targetIndex].getTable2().size());
+        if(table[targetIndex].getTable2()[table2Target].empty()){
+            table[targetIndex].getTable2()[table2Target] = word;
+        }
+        else{
+            // cout << "hit collision helper" << endl;
+            collisionHelper(targetIndex, i);
+        }
+    }
+
+    // for(int j = 0; j < table.size(); j++){
+    //     // if(table)
+    //     cout << "Index: " << j << " words: ";
+    //     for(int k = 0; k < table[j].getTable2().size(); k++){
+    //         cout << table[j].getTable2()[k] << " ";
+    //     }
+    //     cout << endl;
+    // }
+}
+
+void Dictionary::collisionHelper(int primaryHashIndex, int currentIndex) {
+    table[primaryHashIndex].getTable2().clear();
+    int nSquared = tempTable[primaryHashIndex] * tempTable[primaryHashIndex];
+    table[primaryHashIndex].getTable2().resize(nSquared);
+    table[primaryHashIndex].newHash();
+    // cout << "called collisionHelper" << endl;
+    for(int i = 0; i <= currentIndex; i++){
+        string word = wordList[i];
+        int targetIndex = primaryHash.hash(word) % numWords;
+        int table2Target = table[targetIndex].getH2().hash(word) % (table[targetIndex].getTable2().size());
+        if(targetIndex == primaryHashIndex){
+            if(table[primaryHashIndex].getTable2()[table2Target].empty()){
+                table[primaryHashIndex].getTable2()[table2Target] = word;
+            }
+            else{
+                // cout << "hitting recursive collisionHelper within collision helper" << endl;
+                collisionHelper(primaryHashIndex, currentIndex);
+            }
+        }
+    }
+}
+
+// bool Dictionary::secondHashInsert(string word) {
+//     int targetIndex = primaryHash.hash(word) % numWords;
+//     table[targetIndex].newHash();
+//     table[targetIndex].getTable2().clear();
+//     int nSquared = tempTable[targetIndex] * tempTable[targetIndex];
+//     table[targetIndex].getTable2().resize(nSquared);
+//     if(targetIndex > numWords){
+//         cout << "ERROR: hash id is bigger than number of words" << endl;
+//     }
+//     int table2Target = table[targetIndex].getH2().hash(word) % (table[targetIndex].getTable2().size());
+//     if(table[targetIndex].getTable2()[table2Target].empty()){
+//         table[targetIndex].getTable2()[table2Target] = word;
+//         return true;
+//     }
+//     return false;
+// }
+
+
+void Dictionary::checkSecondaryCollisions() {
+    double avgHash = 1;
+    int total = 0;
+    int hashFunctionCount = 1;
+    while(hashFunctionCount <= 20){
+        int count = 0;
+        for(int i = 0; i < table.size(); i++){
+            if(hashFunctionCount == table[i].getHashCount()){
+                count++;
+            }
+        }
+        cout << "# of secondary hash tables trying " << hashFunctionCount << " hash functions = " << count << endl;
+        if(count > 0){
+            avgHash += hashFunctionCount * count;
+        }
+        total += count;
+        hashFunctionCount++;
+    }
+    avgHash = (double)(avgHash/total);
+    cout << "Average # of hash functions tried = " << avgHash << endl;
+}
+
+bool Dictionary::find(string word) {
+    int targetIndex = primaryHash.hash(word) % numWords;
+    int table2Target = table[targetIndex].getH2().hash(word) % (table[targetIndex].getTable2().size());
+    if(table[targetIndex].getTable2()[table2Target] == word){
+        return true;
+    }
+    return false;
+}
+
 
     
 // main.cpp
