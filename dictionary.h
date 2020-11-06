@@ -12,14 +12,19 @@ using namespace std;
 // Helper class for creating a hashtable
 class Dictionary {
     public:
+        Dictionary(){ }
         Dictionary(string fname, int tsize);
         ~Dictionary();
         bool find(string word);
         void writeToFile(string fName);
-        static Dictionary readFromFile(string fName);
+        static Dictionary readFromFile(string fname);
+        static Dictionary readFromTextFile(string fName);
+        void setTempTable();
         int* getTempTable();
         void infoDump();
         void collisionHelper(int primaryHashIndex, int currentIndex);
+        void createTable();
+
 
     private:
         // in each slot an object called Node
@@ -30,9 +35,17 @@ class Dictionary {
                     h2 = Hash24();
                 }
                 Node(int n){
-                    hashCount = 1;
+                    hashCount = 0;
                     int tSize = n * n;
                     table2.resize(tSize);
+                }
+                Node(vector<string> v, Hash24 h){
+                    hashCount = 1;
+                    table2.resize(v.size());
+                    for(int i = 0; i < v.size(); i++){
+                        table2[i] = v[i];
+                    }
+                    h2 = h;
                 }
                 void newHash() {
                     hashCount++;
@@ -41,7 +54,7 @@ class Dictionary {
                 int getHashCount(){return hashCount;}
                 vector<string> &getTable2(){return table2;}
                 Hash24 getH2() {return h2;}
-                int hashCount;
+                void setH2(Hash24 h){h2 = h;}
                 void printElements(){
                     cout << "hashCount: " << hashCount << " table2.size(): " << table2.size() << endl;
                 }
@@ -49,10 +62,10 @@ class Dictionary {
             private:
                 vector<string> table2;
                 Hash24 h2;
+                int hashCount;
         };
         vector<Node> table;
         int* tempTable;         // for original count of collisons
-        void createTable(string fName);
         void insertWords();
         bool secondHashInsert(string word);
         void createSecondaryHashTable();
@@ -64,6 +77,7 @@ class Dictionary {
         vector<string> wordList;
         void checkPrimaryCollisions();
         void checkSecondaryCollisions();
+        void setTable(vector<Node> &n){table = n;}
 };
 
 

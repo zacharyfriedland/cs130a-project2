@@ -35,10 +35,57 @@ Dictionary::~Dictionary() {
 }
 
 void Dictionary::writeToFile(string fName){
+    fstream f;
+    f.open(fName, ios::out);
+    int primTableSize = table.size();
+    f.write((char*)(&primTableSize), sizeof(primTableSize));
+    for(int i = 0; i < table.size(); i++){
+        int nodeSize = table[i].getTable2().size();
+        f.write((char*)(&nodeSize), sizeof(nodeSize));
+        for(string word : table[i].getTable2()){
+            int stringSize = sizeof(word);
+            f.write((char*)(&stringSize), sizeof(stringSize));
+            f.write(word.c_str(), stringSize);
+        }
+        const Hash24 &h = table[i].getH2();
+        f.write((char*)(&h), sizeof(h));
+    }
+    f.close();
+}
+
+Dictionary Dictionary::readFromFile(string fname){
+    Dictionary d;
+    fstream f;
+    f.open(fname, ios::in);
+    int primTableSize;
+    int table2Size;
+    Hash24 hash;
+    int wordLength;
+    vector<Node> tempTable;
+    vector<string> stringtemp;
+    f.read((char*)(&primTableSize), sizeof(primTableSize));
+    for(int i = 0; i < primTableSize; i++){
+        f.read((char*)(&table2Size), sizeof(table2Size));
+        for(int j = 0; j < table2Size; j++){
+            f.read((char*)(&wordLength), sizeof(wordLength));
+            char cString[wordLength];
+            f.read((char*)(&cString), wordLength);
+            string word(cString);
+            stringtemp.push_back(word);
+        }
+        f.read((char*)(&hash), sizeof(hash));
+        Node n = Node(stringtemp, hash);
+        tempTable.push_back(n);
+        stringtemp.clear();
+    }
+    d.setTable(tempTable);
+    f.close();
+    return d;
+
 
 }
 
-Dictionary Dictionary::readFromFile(string fName){
+Dictionary Dictionary::readFromTextFile(string fName){
     int count = 0;
     ifstream input(fName);
     
@@ -47,28 +94,11 @@ Dictionary Dictionary::readFromFile(string fName){
         while(getline(input, line)){
             count++;
         }
+        cout << "count: " << count << endl;
         input.close();
-
-        // std::string content( (std::istreambuf_iterator<char>(input) ),
-        //                (std::istreambuf_iterator<char>()    ) );
-        
     }
-    // TO DO?? Below
     return Dictionary(fName, count);
 }
-
-// void Dictionary::createTable(string fName) {
-//     fstream input(fName); 
-//     string line;
-//     if(input.is_open()) {
-//         int i = 0;
-//         while(getline(input, line)){
-//             Hash24 h;
-//             i++;
-//         }
-//         input.close();
-//     }
-// }
 
 
 
@@ -79,14 +109,14 @@ int* Dictionary::getTempTable() {
 void Dictionary::infoDump() {
     primaryHash.dump();
     cout << "Number of words = " << numWords << endl;
-    cout << "Table size = " << tableSize << endl;
+    cout << "Table size = " << numWords << endl;
     this->checkPrimaryCollisions();
     this->createSecondaryHashTable();
     this->insertWords();
     this->checkSecondaryCollisions();
 }
 
-void Dictionary::checkPrimaryCollisions(){
+void Dictionary::setTempTable(){
     // initialize all indexes to 0 to prep for count
     for(int i = 0; i < numWords; i++){
         tempTable[i] = 0;
@@ -99,6 +129,10 @@ void Dictionary::checkPrimaryCollisions(){
         }
         tempTable[targetIndex]++;
     }
+}
+
+void Dictionary::checkPrimaryCollisions(){
+    this->setTempTable();
     // find max collisons
     int maxCollisions = 0;
     int maxIndex = -1;
@@ -108,7 +142,7 @@ void Dictionary::checkPrimaryCollisions(){
             maxIndex = k;
         }
     }
-    cout << "Max collisions = " << maxCollisions << endl;
+    cout << "Max collisions = " << maxCollisions - 1  << endl;
 
     // checking primary slots with x collisions
     int wordsInSlot = 0;
@@ -188,24 +222,6 @@ void Dictionary::collisionHelper(int primaryHashIndex, int currentIndex) {
     }
 }
 
-// bool Dictionary::secondHashInsert(string word) {
-//     int targetIndex = primaryHash.hash(word) % numWords;
-//     table[targetIndex].newHash();
-//     table[targetIndex].getTable2().clear();
-//     int nSquared = tempTable[targetIndex] * tempTable[targetIndex];
-//     table[targetIndex].getTable2().resize(nSquared);
-//     if(targetIndex > numWords){
-//         cout << "ERROR: hash id is bigger than number of words" << endl;
-//     }
-//     int table2Target = table[targetIndex].getH2().hash(word) % (table[targetIndex].getTable2().size());
-//     if(table[targetIndex].getTable2()[table2Target].empty()){
-//         table[targetIndex].getTable2()[table2Target] = word;
-//         return true;
-//     }
-//     return false;
-// }
-
-
 void Dictionary::checkSecondaryCollisions() {
     double avgHash = 1;
     int total = 0;
@@ -229,14 +245,25 @@ void Dictionary::checkSecondaryCollisions() {
 }
 
 bool Dictionary::find(string word) {
-    int targetIndex = primaryHash.hash(word) % numWords;
+    int targetIndex = primaryHash.hash(word) % table.size();
+    if(table[targetIndex].getTable2().size() < 1) {
+        cout << word << " not found" << endl;
+        return false;
+    }
     int table2Target = table[targetIndex].getH2().hash(word) % (table[targetIndex].getTable2().size());
     if(table[targetIndex].getTable2()[table2Target] == word){
+        cout << word << " found" << endl;
         return true;
     }
+    cout << word << " not found" << endl;
     return false;
 }
 
+void Dictionary::createTable(){
+    this->setTempTable();
+    this->createSecondaryHashTable();
+    this->insertWords();
+}
 
     
 // main.cpp

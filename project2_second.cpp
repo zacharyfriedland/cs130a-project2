@@ -7,12 +7,13 @@
 using namespace std;
 
 int main(int argc, char** argv) {
+    string in = argv[1];
     string argument = argv[2];
     vector<string> input;
-    // NEED TO READ FROM OUTPUT FILE FROM project2_first.cpp output file
-    // Dictionary d = Dictionary::readFromFile(input);
-    // d.infoDump();
-
+    Dictionary d = Dictionary::readFromFile(in);
+    Dictionary d2 = Dictionary::readFromTextFile("PA2_dataset_10000.txt");
+    d2.createTable();
+    //d2.infoDump();
     // push words in argument into vector
     string word;
     for(int i = 0; i < argument.size(); i++){
@@ -32,15 +33,10 @@ int main(int argc, char** argv) {
             word += argument[i];
         }
     }
-    
     // find words in input vector
     for(int j = 0; j < input.size(); j++){
-        if(d.find(input[j])){
-                cout << input[j] << " found" << endl;
-            }
-        else{
-            cout << input[j] << " not found" << endl;
-        }   
+        //d.find(input[j]); 
+        d2.find(input[j]);
     }
     
     return 0;
