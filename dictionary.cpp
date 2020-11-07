@@ -74,31 +74,20 @@ Dictionary Dictionary::readFromFile(string fname){
     f.read((char*)(&primHash), sizeof(primHash));
     f.read((char*)(&primTableSize), sizeof(primTableSize));
     Dictionary d = Dictionary(primTableSize, primHash);
-    // cout << "before creating secondary hash tabe" << endl;
     d.createSecondaryHashTable();
     for(int i = 0; i < primTableSize; i++){
-        // cout << "i: " << i << endl;
         f.read((char*)(&table2Size), sizeof(table2Size));
         for(int j = 0; j < table2Size; j++){
-            // cout << "j: " << j << " table2Size: " << table2Size << endl;
             f.read((char*)(&wordLength), sizeof(wordLength));
             char cString[wordLength];
             f.read((char*)(&cString), wordLength);
             string word(cString);
-            //stringtemp.push_back(word);
-            // cout << "before pushback, index : " << i << endl;
             d.pushBackTable2(word, i);
         }
         f.read((char*)(&hash), sizeof(hash));
-        // cout << "before set hash" << endl;
         d.setHash2(hash, i);
-        // cout << "after set hash" << endl;
-        // cout << "primTableSize: " << primTableSize << endl;
-        // d[i].push_backsetTable2(stringtemp, hash, i);
-        //stringtemp.clear();
     }
     f.close();
-    // cout << "after close()" << endl;
     return d;
 }
 
@@ -118,9 +107,9 @@ Dictionary Dictionary::readFromTextFile(string fName){
 
 
 
-int* Dictionary::getTempTable() {
-    return tempTable;
-}
+// int* Dictionary::getTempTable() {
+//     return tempTable;
+// }
 
 void Dictionary::infoDump() {
     primaryHash.dump();
@@ -192,8 +181,6 @@ void Dictionary::createSecondaryHashTable() {
 
 void Dictionary::insertWords(){
     for(int i = 0; i < table.size(); i++){
-        // cout << "inside for loop, Index: " << i << endl;
-        // cout << "table size: " << table.size() << endl;
         string word = wordList[i];
         int targetIndex = primaryHash.hash(word) % numWords;
         int table2Target = table[targetIndex].getH2().hash(word) % (table[targetIndex].getTable2().size());
@@ -201,19 +188,9 @@ void Dictionary::insertWords(){
             table[targetIndex].getTable2()[table2Target] = word;
         }
         else{
-            // cout << "hit collision helper" << endl;
             collisionHelper(targetIndex, i);
         }
     }
-
-    // for(int j = 0; j < table.size(); j++){
-    //     // if(table)
-    //     cout << "Index: " << j << " words: ";
-    //     for(int k = 0; k < table[j].getTable2().size(); k++){
-    //         cout << table[j].getTable2()[k] << " ";
-    //     }
-    //     cout << endl;
-    // }
 }
 
 void Dictionary::collisionHelper(int primaryHashIndex, int currentIndex) {
@@ -221,7 +198,6 @@ void Dictionary::collisionHelper(int primaryHashIndex, int currentIndex) {
     int nSquared = tempTable[primaryHashIndex] * tempTable[primaryHashIndex];
     table[primaryHashIndex].getTable2().resize(nSquared);
     table[primaryHashIndex].newHash();
-    // cout << "called collisionHelper" << endl;
     for(int i = 0; i <= currentIndex; i++){
         string word = wordList[i];
         int targetIndex = primaryHash.hash(word) % numWords;
@@ -231,7 +207,6 @@ void Dictionary::collisionHelper(int primaryHashIndex, int currentIndex) {
                 table[primaryHashIndex].getTable2()[table2Target] = word;
             }
             else{
-                // cout << "hitting recursive collisionHelper within collision helper" << endl;
                 collisionHelper(primaryHashIndex, currentIndex);
             }
         }
@@ -264,8 +239,6 @@ bool Dictionary::find(string word) {
     int targetIndex = primaryHash.hash(word) % table.size();
     if(table[targetIndex].getTable2().size() < 1) {
         cout << word << " not found" << endl;
-        // cout << "target index: " << targetIndex << endl;
-        // cout << "smaller than 1 size" << endl;
         return false;
     }
     int table2Target = table[targetIndex].getH2().hash(word) % (table[targetIndex].getTable2().size());
@@ -277,23 +250,23 @@ bool Dictionary::find(string word) {
     return false;
 }
 
-void Dictionary::createTable(){
-    this->setTempTable();
-    this->createSecondaryHashTable();
-    this->insertWords();
-}
+// void Dictionary::createTable(){
+//     this->setTempTable();
+//     this->createSecondaryHashTable();
+//     this->insertWords();
+// }
 
-void Dictionary::setTable2(vector<string> stringVector, Hash24 h, int index){
-    setTable2Helper(stringVector, h, index);
-}
+// void Dictionary::setTable2(vector<string> stringVector, Hash24 h, int index){
+//     setTable2Helper(stringVector, h, index);
+// }
 
-void Dictionary::setTable2Helper(vector<string> stringVector, Hash24 h, int index){
-    Node n = Node(stringVector.size());
-    for(int i = 0; i < stringVector.size(); i++){
-        n.getTable2()[i] = stringVector[i];
-    }
-    n.setH2(h);
-}
+// void Dictionary::setTable2Helper(vector<string> stringVector, Hash24 h, int index){
+//     Node n = Node(stringVector.size());
+//     for(int i = 0; i < stringVector.size(); i++){
+//         n.getTable2()[i] = stringVector[i];
+//     }
+//     n.setH2(h);
+// }
 
 void Dictionary::pushBackTable2(string word, int index){
     table[index].getTable2().push_back(word);
@@ -305,7 +278,6 @@ void Dictionary::setHash2(Hash24 h, int index) {
 
 void Dictionary::printAll(){
     for(int j = 0; j < table.size(); j++){
-        // if(table)
         cout << "Index: " << j << " words: ";
         for(int k = 0; k < table[j].getTable2().size(); k++){
             cout << table[j].getTable2()[k] << " ";
@@ -313,12 +285,3 @@ void Dictionary::printAll(){
         cout << endl;
     }
 }
-
-
-    
-// main.cpp
-
-// Dictionary d = Dictionary::readFromFile('blah.txt');
-// d.createTable
-
-
