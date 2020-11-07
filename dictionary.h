@@ -14,6 +14,7 @@ class Dictionary {
     public:
         Dictionary(){ }
         Dictionary(string fname, int tsize);
+        Dictionary(int tsize, Hash24 h);
         ~Dictionary();
         bool find(string word);
         void writeToFile(string fName);
@@ -24,6 +25,12 @@ class Dictionary {
         void infoDump();
         void collisionHelper(int primaryHashIndex, int currentIndex);
         void createTable();
+        void createSecondaryHashTable();
+        void setTable2(vector<string> stringVector, Hash24 h, int index);
+        void setPrimHash(Hash24 h){primaryHash = h;}
+        void pushBackTable2(string word, int index);
+        void setHash2(Hash24 h, int index);
+        void printAll();
 
 
     private:
@@ -68,7 +75,6 @@ class Dictionary {
         int* tempTable;         // for original count of collisons
         void insertWords();
         bool secondHashInsert(string word);
-        void createSecondaryHashTable();
         Hash24 primaryHash;
         int numWords;
         int tableSize;
@@ -77,7 +83,7 @@ class Dictionary {
         vector<string> wordList;
         void checkPrimaryCollisions();
         void checkSecondaryCollisions();
-        void setTable(vector<Node> &n){table = n;}
+        void setTable2Helper(vector<string> stringVector, Hash24 h, int index);
 };
 
 

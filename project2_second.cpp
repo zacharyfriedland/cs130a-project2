@@ -11,8 +11,7 @@ int main(int argc, char** argv) {
     string argument = argv[2];
     vector<string> input;
     Dictionary d = Dictionary::readFromFile(in);
-    Dictionary d2 = Dictionary::readFromTextFile("PA2_dataset_10000.txt");
-    d2.createTable();
+    // d.printAll();
     //d2.infoDump();
     // push words in argument into vector
     string word;
@@ -35,8 +34,8 @@ int main(int argc, char** argv) {
     }
     // find words in input vector
     for(int j = 0; j < input.size(); j++){
-        //d.find(input[j]); 
-        d2.find(input[j]);
+        d.find(input[j]); 
+        // d2.find(input[j]);
     }
     
     return 0;
