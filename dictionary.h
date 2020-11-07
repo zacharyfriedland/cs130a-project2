@@ -21,12 +21,9 @@ class Dictionary {
         static Dictionary readFromFile(string fname);
         static Dictionary readFromTextFile(string fName);
         void setTempTable();
-        //int* getTempTable();
         void infoDump();
         void collisionHelper(int primaryHashIndex, int currentIndex);
-        //void createTable();
         void createSecondaryHashTable();
-       // void setTable2(vector<string> stringVector, Hash24 h, int index);
         void setPrimHash(Hash24 h){primaryHash = h;}
         void pushBackTable2(string word, int index);
         void setHash2(Hash24 h, int index);
@@ -82,7 +79,6 @@ class Dictionary {
         vector<string> wordList;
         void checkPrimaryCollisions();
         void checkSecondaryCollisions();
-        //void setTable2Helper(vector<string> stringVector, Hash24 h, int index);
 };
 
 

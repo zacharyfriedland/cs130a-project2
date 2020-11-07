@@ -11,8 +11,6 @@ int main(int argc, char** argv) {
     string argument = argv[2];
     vector<string> input;
     Dictionary d = Dictionary::readFromFile(in);
-    // d.printAll();
-    //d2.infoDump();
     // push words in argument into vector
     string word;
     for(int i = 0; i < argument.size(); i++){
@@ -35,7 +33,6 @@ int main(int argc, char** argv) {
     // find words in input vector
     for(int j = 0; j < input.size(); j++){
         d.find(input[j]); 
-        // d2.find(input[j]);
     }
     
     return 0;

@@ -105,12 +105,6 @@ Dictionary Dictionary::readFromTextFile(string fName){
     return Dictionary(fName, count);
 }
 
-
-
-// int* Dictionary::getTempTable() {
-//     return tempTable;
-// }
-
 void Dictionary::infoDump() {
     primaryHash.dump();
     cout << "Number of words = " << numWords << endl;
@@ -249,24 +243,6 @@ bool Dictionary::find(string word) {
     cout << word << " not found" << endl;
     return false;
 }
-
-// void Dictionary::createTable(){
-//     this->setTempTable();
-//     this->createSecondaryHashTable();
-//     this->insertWords();
-// }
-
-// void Dictionary::setTable2(vector<string> stringVector, Hash24 h, int index){
-//     setTable2Helper(stringVector, h, index);
-// }
-
-// void Dictionary::setTable2Helper(vector<string> stringVector, Hash24 h, int index){
-//     Node n = Node(stringVector.size());
-//     for(int i = 0; i < stringVector.size(); i++){
-//         n.getTable2()[i] = stringVector[i];
-//     }
-//     n.setH2(h);
-// }
 
 void Dictionary::pushBackTable2(string word, int index){
     table[index].getTable2().push_back(word);
