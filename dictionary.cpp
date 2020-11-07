@@ -74,31 +74,31 @@ Dictionary Dictionary::readFromFile(string fname){
     f.read((char*)(&primHash), sizeof(primHash));
     f.read((char*)(&primTableSize), sizeof(primTableSize));
     Dictionary d = Dictionary(primTableSize, primHash);
-    cout << "before creating secondary hash tabe" << endl;
+    // cout << "before creating secondary hash tabe" << endl;
     d.createSecondaryHashTable();
     for(int i = 0; i < primTableSize; i++){
-        cout << "i: " << i << endl;
+        // cout << "i: " << i << endl;
         f.read((char*)(&table2Size), sizeof(table2Size));
         for(int j = 0; j < table2Size; j++){
-            cout << "j: " << j << " table2Size: " << table2Size << endl;
+            // cout << "j: " << j << " table2Size: " << table2Size << endl;
             f.read((char*)(&wordLength), sizeof(wordLength));
             char cString[wordLength];
             f.read((char*)(&cString), wordLength);
             string word(cString);
             //stringtemp.push_back(word);
-            cout << "before pushback, index : " << i << endl;
+            // cout << "before pushback, index : " << i << endl;
             d.pushBackTable2(word, i);
         }
         f.read((char*)(&hash), sizeof(hash));
-        cout << "before set hash" << endl;
+        // cout << "before set hash" << endl;
         d.setHash2(hash, i);
-        cout << "after set hash" << endl;
-        cout << "primTableSize: " << primTableSize << endl;
+        // cout << "after set hash" << endl;
+        // cout << "primTableSize: " << primTableSize << endl;
         // d[i].push_backsetTable2(stringtemp, hash, i);
         //stringtemp.clear();
     }
     f.close();
-    cout << "after close()" << endl;
+    // cout << "after close()" << endl;
     return d;
 }
 
@@ -264,8 +264,8 @@ bool Dictionary::find(string word) {
     int targetIndex = primaryHash.hash(word) % table.size();
     if(table[targetIndex].getTable2().size() < 1) {
         cout << word << " not found" << endl;
-        cout << "target index: " << targetIndex << endl;
-        cout << "smaller than 1 size" << endl;
+        // cout << "target index: " << targetIndex << endl;
+        // cout << "smaller than 1 size" << endl;
         return false;
     }
     int table2Target = table[targetIndex].getH2().hash(word) % (table[targetIndex].getTable2().size());
